@@ -119,81 +119,168 @@
         @endauth
     
 
-    <!-- Product Modal -->
-    <div id="productModal" class="hidden fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full">
-        <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
-            <div class="mt-3 text-center">
-                <h3 class="text-lg leading-6 font-medium text-gray-900" id="modalTitle">Product Details</h3>
-                <div class="mt-2 px-7 py-3">
-                    <p class="text-sm text-gray-500" id="modalContent">
-                        <!-- Content will be inserted here -->
-                    </p>
-                </div>
-                <div class="items-center px-4 py-3">
-                    <button id="closeModal" class="px-4 py-2 bg-gray-500 text-white text-base font-medium rounded-md shadow-sm hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-gray-300">
-                        Close
-                    </button>
-                </div>
+    <!-- Item Modal -->
+<div id="itemModal" class="hidden fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
+    <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+        <div class="mt-3">
+            <h3 class="text-lg font-semibold mb-4" id="modalItemName"></h3>
+            
+            <!-- Item Image -->
+            <img id="modalItemImage" src="" alt="Item Image" class="w-full h-48 object-cover rounded-lg mb-4 hidden">
+            
+            <!-- Item Details -->
+            <div class="mb-4">
+                <p class="text-gray-600">Stock: <span id="modalItemStock"></span></p>
+                <p class="text-gray-500 text-sm">Tags: <span id="modalItemTags"></span></p>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="flex justify-end space-x-2">
+                <button onclick="editItem()" class="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600">
+                    Edit
+                </button>
+                <button onclick="deleteItem()" class="px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600">
+                    Delete
+                </button>
+                <button onclick="closeModal()" class="px-4 py-2 bg-gray-500 text-white rounded-md hover:bg-gray-600">
+                    Close
+                </button>
             </div>
         </div>
     </div>
+</div>
 
-    <script>
-        //Modal Product Details
-        function showModal(name, tags, stock, image, id) {
+<!-- Edit Form Modal -->
+<div id="editFormModal" class="hidden fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
+    <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+        <h3 class="text-lg font-semibold mb-4">Edit Item</h3>
+        <form id="editItemForm" method="POST" enctype="multipart/form-data">
+            @csrf
+            @method('PUT')
+            
+            <div class="mb-4">
+                <label class="block text-sm font-medium text-gray-700">Item Name</label>
+                <input type="text" id="edit_item_name" name="item_name" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+            </div>
+
+            <div class="mb-4">
+                <label class="block text-sm font-medium text-gray-700">Stock</label>
+                <input type="text" id="edit_item_stock" name="item_stock" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+            </div>
+
+            <div class="mb-4">
+                <label class="block text-sm font-medium text-gray-700">Tags</label>
+                <input type="text" id="edit_item_tags" name="item_tags" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+            </div>
+
+            <div class="mb-4">
+                <label class="block text-sm font-medium text-gray-700">New Image</label>
+                <input type="file" name="item_image" accept="image/*" class="mt-1 block w-full">
+            </div>
+
+            <div class="flex justify-end space-x-2">
+                <button type="submit" class="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600">
+                    Save Changes
+                </button>
+                <button type="button" onclick="closeEditModal()" class="px-4 py-2 bg-gray-500 text-white rounded-md hover:bg-gray-600">
+                    Cancel
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    function showModal(name, tags, stock, image, item_id) {
         // Populate modal with item data
         document.getElementById('modalItemName').textContent = name;
-        document.getElementById('modalItemTags').textContent = tags;
+        document.getElementById('modalItemTags').textContent = tags || 'No tags';
         document.getElementById('modalItemStock').textContent = stock;
-        document.getElementById('modalItemImage').src = image;
+        
+        const modalImage = document.getElementById('modalItemImage');
+        if (image) {
+            modalImage.src = image;
+            modalImage.classList.remove('hidden');
+        } else {
+            modalImage.classList.add('hidden');
+        }
 
-        // Store the item ID for update/delete actions
-        document.getElementById('itemModal').dataset.itemId = id;
+        // Store the item_id in the modal
+        document.getElementById('itemModal').dataset.itemId = item_id;
 
         // Show modal
         document.getElementById('itemModal').classList.remove('hidden');
+    }
+
+    function editItem() {
+        const item_id = document.getElementById('itemModal').dataset.itemId;
+        
+        if (!item_id) {
+            console.error('No item ID found');
+            alert('Error: Item ID not found');
+            return;
         }
 
-        function closeModal() {
-            // Hide modal
-            document.getElementById('itemModal').classList.add('hidden');
+        const itemName = document.getElementById('modalItemName').textContent;
+        const itemTags = document.getElementById('modalItemTags').textContent;
+        const itemStock = document.getElementById('modalItemStock').textContent;
+
+        // Populate edit form
+        document.getElementById('edit_item_name').value = itemName;
+        document.getElementById('edit_item_tags').value = itemTags === 'No tags' ? '' : itemTags;
+        document.getElementById('edit_item_stock').value = itemStock;
+
+        // Update form action with proper URL
+        const editForm = document.getElementById('editItemForm');
+        editForm.action = `/items/${item_id}`;
+        
+        // Hide view modal and show edit modal
+        document.getElementById('itemModal').classList.add('hidden');
+        document.getElementById('editFormModal').classList.remove('hidden');
+    }
+
+    function deleteItem() {
+        const item_id = document.getElementById('itemModal').dataset.itemId;
+        
+        if (!item_id) {
+            console.error('No item ID found');
+            alert('Error: Item ID not found');
+            return;
         }
+        
+        if (confirm('Are you sure you want to delete this item?')) {
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = `/items/${item_id}`;
 
-        function editItem() {
-            const itemId = document.getElementById('itemModal').dataset.itemId;
-            // Redirect to edit page or send AJAX request
-            window.location.href = `/items/${itemId}/edit`;
+            // Add CSRF token
+            const csrfToken = document.createElement('input');
+            csrfToken.type = 'hidden';
+            csrfToken.name = '_token';
+            csrfToken.value = '{{ csrf_token() }}';
+            form.appendChild(csrfToken);
+
+            // Add method spoofing
+            const methodField = document.createElement('input');
+            methodField.type = 'hidden';
+            methodField.name = '_method';
+            methodField.value = 'DELETE';
+            form.appendChild(methodField);
+
+            document.body.appendChild(form);
+            form.submit();
         }
+    }
 
-        function deleteItem() {
-            const itemId = document.getElementById('itemModal').dataset.itemId;
-            // Send delete request (you may use fetch/axios for better handling)
-            if (confirm('Are you sure you want to delete this item?')) {
-                fetch(`/items/${itemId}`, {
-                    method: 'DELETE',
-                    headers: {
-                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                    }
-                })
-                .then(response => {
-                    if (response.ok) {
-                        location.reload(); // Reload page on successful delete
-                    } else {
-                        alert('Failed to delete item.');
-                    }
-                });
-            }
-        }
-
-        //Prompt button is clicked
-        document.getElementById('add-item-button').addEventListener('click', function () {
-        // Toggle visibility of the add item form
-        const form = document.getElementById('add-item-form');
-        form.classList.toggle('hidden');
-        });
+    //Prompt button is clicked
+    document.getElementById('add-item-button').addEventListener('click', function () {
+    // Toggle visibility of the add item form
+    const form = document.getElementById('add-item-form');
+    form.classList.toggle('hidden');
+    });
 
 
-    </script>
+</script>
 </body>
 
 </html>

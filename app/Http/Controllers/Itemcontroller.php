@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\Log;
 
 class ItemController extends Controller
 {
-
+    
     public function index()
     {
         // Use Eloquent to get the items
@@ -81,5 +81,56 @@ class ItemController extends Controller
         }
     }
 
+    public function edit($item_id)
+    {
+        try {
+            $item = Item::findOrFail($item_id);
+            return view('items.edit', compact('item'));
+        } catch (\Exception $e) {
+            Log::error('Error editing item: ', ['message' => $e->getMessage()]);
+            return redirect()->route('items.index')->withErrors('Item not found.');
+        }
+    }
 
+    public function update(Request $request, $item_id)
+    {
+        try {
+            $request->validate([
+                'item_name' => 'required|string|max:255',
+                'item_stock' => 'required|string',
+                'item_tags' => 'nullable|string',
+                'item_image' => 'nullable|image|mimes:jpg,jpeg,png,gif|max:2048',
+            ]);
+
+            $item = Item::findOrFail($item_id);
+
+            if ($request->hasFile('item_image')) {
+                $fileName = $request->file('item_image')->getClientOriginalName();
+                $request->file('item_image')->move(public_path('storage'), $fileName);
+                $item->item_image = $fileName;
+            }
+
+            $item->item_name = $request->item_name;
+            $item->item_stock = $request->item_stock;
+            $item->item_tags = $request->item_tags;
+            $item->save();
+
+            return redirect()->route('items.index')->with('success', 'Item updated successfully!');
+        } catch (\Exception $e) {
+            Log::error('Error updating item: ', ['message' => $e->getMessage()]);
+            return back()->withErrors('An error occurred while updating the item.');
+        }
+    }
+
+    public function destroy($item_id)
+    {
+        try {
+            $item = Item::findOrFail($item_id);
+            $item->delete();
+            return redirect()->route('items.index')->with('success', 'Item deleted successfully!');
+        } catch (\Exception $e) {
+            Log::error('Error deleting item: ', ['message' => $e->getMessage()]);
+            return back()->withErrors('An error occurred while deleting the item.');
+        }
+    }
 }

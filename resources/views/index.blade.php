@@ -7,190 +7,256 @@
     <title>Document</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&icon_names=add" />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" />
+
 </head>
 
-<body class="bg-[#89cedd]">
-    <div class="max-w-lg mx-auto mt-10">
-        @auth
-            <div class="text-center p-6 bg-green-100 border border-green-300 rounded-lg">
-                <h2 class="text-xl font-bold text-green-800">You're Logged In</h2>
-                <form action="/logout" method="POST" class="mt-4">
-                    @csrf
-                    <button class="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600">
-                        Log Out
-                    </button>
-                </form>
-            </div>
-    </div>
-
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 w-full max-w-7xl mt-6">
-        @foreach ($items as $item)
-            <x-item-card :item="$item" />
-        @endforeach
-    </div>
-
-    <!-- Add Item Button -->
-    <div class="fixed bottom-6 right-6">
-        <button
-            class="bg-blue-500 text-white px-4 py-2 rounded-full shadow-md hover:bg-blue-600"
-            id="add-item-button">
-            <span class="material-symbols-outlined">add</span>      
+<body class="h-screen flex flex-col bg-[#89cedd]">
+    {{-- Navbar --}}
+    <nav class="bg-[#00d0ff] text-white p-4 flex justify-between items-center">
+        <button id="menuButton" class="p-2 hover:bg-white-600 rounded-lg transition-colors">
+            <span class="material-symbols-outlined">
+                menu
+            </span>
         </button>
-    </div>
 
-    <!-- Add Item Form -->
-    <div id="add-item-form" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50 hidden">
-        <div class="bg-white p-6 rounded-xl shadow-lg w-1/3">
-            <h3 class="text-xl font-semibold mb-4">Add New Item</h3>
-            <form action="{{ route('store') }}" method="POST" enctype="multipart/form-data">
-                @csrf
-                <!-- Item Name -->
-                <div class="mb-4">
-                    <label for="item_name" class="block text-sm font-medium text-gray-700">Item Name</label>
-                    <input type="text" name="item_name" id="item_name" required class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+        <span class="ml-2">
+           Baked By Baby
+        </span>
+        
+        <span class="material-symbols-outlined">
+            account_circle
+        </span>
+    </nav>
+    
+    {{-- Main Content Area --}}
+    <div class="flex flex-1 relative">
+        {{-- Overlay for clicking outside to close sidebar --}}
+        <div id="overlay" class="fixed inset-0 bg-black bg-opacity-50 z-20 hidden md:hidden"></div>
+
+        {{-- Sidebar --}}
+        <aside id="sidebar" class="bg-gray-500 text-white p-4 w-64 fixed top-[4.8rem] bottom-0 left-0 transform -translate-x-full transition-transform duration-300 ease-in-out z-30 overflow-y-auto border-r-2 border-gray-900"> 
+            Sidebar Content
+        </aside>
+
+        {{-- Main Content --}}
+        <main class="flex-1 flex flex-col bg-gray-100 p-4 transition-all duration-300">            
+            <div class="flex-1 bg-gray-100 p-4 border-2 border-x-gray-300">
+                {{-- Main Content --}}
+                
+                    @auth
+                        
+                
+            
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 w-full max-w-7xl mt-6">
+                    @foreach ($items as $item)
+                        <x-item-card :item="$item" />
+                    @endforeach
                 </div>
-
-                <!-- Item Stock -->
-                <div class="mb-4">
-                    <label for="item_stock" class="block text-sm font-medium text-gray-700">Item stock</label>
-                    <textarea name="item_stock" id="item_stock" rows="3" required class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"></textarea>
+                
+                <div class="max-w-lg mx-auto mt-10">
+                <div class="text-center p-6 bg-green-100 border border-green-300 rounded-lg">
+                    <h2 class="text-xl font-bold text-green-800">You're Logged In</h2>
+                    <form action="/logout" method="POST" class="mt-4">
+                        @csrf
+                        <button class="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600">
+                            Log Out
+                        </button>
+                    </form>
                 </div>
-
-                <!-- Item Tags -->
-                <div class="mb-4">
-                    <label for="item_tags" class="block text-sm font-medium text-gray-700">Tags</label>
-                    <input type="text" name="item_tags" id="item_tags" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
                 </div>
-
-                <!-- Item Image -->
-                <div class="mb-4">
-                    <label for="item_image" class="block text-sm font-medium text-gray-700">Item Image</label>
-                    <input type="file" name="item_image" id="item_image" accept="image/*" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
-                </div>
-
-                <!-- Submit Button -->
-                <div class="flex justify-end">
-                    <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600">
-                        Add Item
-                    </button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-
-
-
-
-        @else
-            <div class="p-6 bg-gray-100 border border-gray-300 rounded-lg">
-                <!-- Registration Form -->
-                <h2 class="text-xl font-bold text-gray-800 mb-4">Register</h2>
-                <form action="/register" method="POST" class="space-y-4">
-                    @csrf
-                    <input name="name" type="text" placeholder="Name"
-                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
-                    <input name="email" type="email" placeholder="Email"
-                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
-                    <input name="password" type="password" placeholder="Password"
-                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <!-- Add Item Button -->
+                <div class="fixed bottom-6 right-6">
                     <button
-                        class="w-full px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 focus:ring-2 focus:ring-blue-400">
-                        Register
+                        class="bg-blue-500 text-white px-4 py-2 rounded-full shadow-md hover:bg-blue-600"
+                        id="add-item-button">
+                        <span class="material-symbols-outlined">add</span>      
                     </button>
-                </form>
+                </div>
+            
+                <!-- Add Item Form -->
+                <div id="add-item-form" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50 hidden">
+                    <div class="bg-white p-6 rounded-xl shadow-lg w-1/3">
+                        <h3 class="text-xl font-semibold mb-4">Add New Item</h3>
+                        <form action="{{ route('store') }}" method="POST" enctype="multipart/form-data">
+                            @csrf
+                            <!-- Item Name -->
+                            <div class="mb-4">
+                                <label for="item_name" class="block text-sm font-medium text-gray-700">Item Name</label>
+                                <input type="text" name="item_name" id="item_name" required class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                            </div>
+            
+                            <!-- Item Stock -->
+                            <div class="mb-4">
+                                <label for="item_stock" class="block text-sm font-medium text-gray-700">Item stock</label>
+                                <textarea name="item_stock" id="item_stock" rows="3" required class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"></textarea>
+                            </div>
+            
+                            <!-- Item Tags -->
+                            <div class="mb-4">
+                                <label for="item_tags" class="block text-sm font-medium text-gray-700">Tags</label>
+                                <input type="text" name="item_tags" id="item_tags" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                            </div>
+            
+                            <!-- Item Image -->
+                            <div class="mb-4">
+                                <label for="item_image" class="block text-sm font-medium text-gray-700">Item Image</label>
+                                <input type="file" name="item_image" id="item_image" accept="image/*" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                            </div>
+            
+                            <!-- Submit Button -->
+                            <div class="flex justify-end">
+                                <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600">
+                                    Add Item
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            
+            
+                    @else
+                        <div class="p-6 bg-gray-100 border border-gray-300 rounded-lg">
+                            <!-- Registration Form -->
+                            <h2 class="text-xl font-bold text-gray-800 mb-4">Register</h2>
+                            <form action="/register" method="POST" class="space-y-4">
+                                @csrf
+                                <input name="name" type="text" placeholder="Name"
+                                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                <input name="email" type="email" placeholder="Email"
+                                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                <input name="password" type="password" placeholder="Password"
+                                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                <button
+                                    class="w-full px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 focus:ring-2 focus:ring-blue-400">
+                                    Register
+                                </button>
+                            </form>
+                        </div>
+            
+                        <!-- Login Form -->
+                        <div class="p-6 bg-gray-100 border border-gray-300 rounded-lg mt-6">
+                            <h2 class="text-xl font-bold text-gray-800 mb-4">Login</h2>
+                            <form action="/login" method="POST" class="space-y-4">
+                                @csrf
+                                <input name="loginemail" type="email" placeholder="Email"
+                                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                <input name="loginpassword" type="password" placeholder="Password"
+                                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                <button
+                                    class="w-full px-4 py-2 bg-[#00d0ff] text-white rounded-lg hover:bg-blue-600 focus:ring-2 focus:ring-green-400">
+                                    Login
+                                </button>
+                            </form>
+                        </div>
+                    @endauth
+                
+            
+                <!-- Item Modal -->
+            <div id="itemModal" class="hidden fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
+                <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+                    <div class="mt-3">
+                        <h3 class="text-lg font-semibold mb-4" id="modalItemName"></h3>
+                        
+                        <!-- Item Image -->
+                        <img id="modalItemImage" src="" alt="Item Image" class="w-full h-48 object-cover rounded-lg mb-4 hidden">
+                        
+                        <!-- Item Details -->
+                        <div class="mb-4">
+                            <p class="text-gray-600">Stock: <span id="modalItemStock"></span></p>
+                            <p class="text-gray-500 text-sm">Tags: <span id="modalItemTags"></span></p>
+                        </div>
+            
+                        <!-- Action Buttons -->
+                        <div class="flex justify-end space-x-2">
+                            <button onclick="editItem()" class="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600">
+                                Edit
+                            </button>
+                            <button onclick="deleteItem()" class="px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600">
+                                Delete
+                            </button>
+                            <button onclick="closeModal()" class="px-4 py-2 bg-gray-500 text-white rounded-md hover:bg-gray-600">
+                                Close
+                            </button>
+                        </div>
+                    </div>
+                </div>
             </div>
-
-            <!-- Login Form -->
-            <div class="p-6 bg-gray-100 border border-gray-300 rounded-lg mt-6">
-                <h2 class="text-xl font-bold text-gray-800 mb-4">Login</h2>
-                <form action="/login" method="POST" class="space-y-4">
-                    @csrf
-                    <input name="loginemail" type="email" placeholder="Email"
-                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
-                    <input name="loginpassword" type="password" placeholder="Password"
-                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
-                    <button
-                        class="w-full px-4 py-2 bg-[#00d0ff] text-white rounded-lg hover:bg-blue-600 focus:ring-2 focus:ring-green-400">
-                        Login
-                    </button>
-                </form>
+            
+            <!-- Edit Form Modal -->
+            <div id="editFormModal" class="hidden fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
+                <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+                    <h3 class="text-lg font-semibold mb-4">Edit Item</h3>
+                    <form id="editItemForm" method="POST" enctype="multipart/form-data">
+                        @csrf
+                        @method('PUT')
+                        
+                        <div class="mb-4">
+                            <label class="block text-sm font-medium text-gray-700">Item Name</label>
+                            <input type="text" id="edit_item_name" name="item_name" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                        </div>
+            
+                        <div class="mb-4">
+                            <label class="block text-sm font-medium text-gray-700">Stock</label>
+                            <input type="text" id="edit_item_stock" name="item_stock" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                        </div>
+            
+                        <div class="mb-4">
+                            <label class="block text-sm font-medium text-gray-700">Tags</label>
+                            <input type="text" id="edit_item_tags" name="item_tags" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                        </div>
+            
+                        <div class="mb-4">
+                            <label class="block text-sm font-medium text-gray-700">New Image</label>
+                            <input type="file" name="item_image" accept="image/*" class="mt-1 block w-full">
+                        </div>
+            
+                        <div class="flex justify-end space-x-2">
+                            <button type="submit" class="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600">
+                                Save Changes
+                            </button>
+                            <button type="button" onclick="closeEditModal()" class="px-4 py-2 bg-gray-500 text-white rounded-md hover:bg-gray-600">
+                                Cancel
+                            </button>
+                        </div>
+                    </form>
+                </div>
             </div>
-        @endauth
+            </div>
+        
+            {{-- Footer --}}
+            <footer class="flex border-2 border-red-500 p-4">
+                <div class="border-2 border-blue-500 p-4">Box 1</div>
+                <div class="border-2 border-green-400 p-4 flex-1">Box 2</div>
+                <div class="border-2 border-yellow-500 p-4">Box 3</div>
+            </footer>
+        </main>
+    </div>
     
 
-    <!-- Item Modal -->
-<div id="itemModal" class="hidden fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
-    <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
-        <div class="mt-3">
-            <h3 class="text-lg font-semibold mb-4" id="modalItemName"></h3>
-            
-            <!-- Item Image -->
-            <img id="modalItemImage" src="" alt="Item Image" class="w-full h-48 object-cover rounded-lg mb-4 hidden">
-            
-            <!-- Item Details -->
-            <div class="mb-4">
-                <p class="text-gray-600">Stock: <span id="modalItemStock"></span></p>
-                <p class="text-gray-500 text-sm">Tags: <span id="modalItemTags"></span></p>
-            </div>
-
-            <!-- Action Buttons -->
-            <div class="flex justify-end space-x-2">
-                <button onclick="editItem()" class="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600">
-                    Edit
-                </button>
-                <button onclick="deleteItem()" class="px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600">
-                    Delete
-                </button>
-                <button onclick="closeModal()" class="px-4 py-2 bg-gray-500 text-white rounded-md hover:bg-gray-600">
-                    Close
-                </button>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Edit Form Modal -->
-<div id="editFormModal" class="hidden fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
-    <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
-        <h3 class="text-lg font-semibold mb-4">Edit Item</h3>
-        <form id="editItemForm" method="POST" enctype="multipart/form-data">
-            @csrf
-            @method('PUT')
-            
-            <div class="mb-4">
-                <label class="block text-sm font-medium text-gray-700">Item Name</label>
-                <input type="text" id="edit_item_name" name="item_name" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
-            </div>
-
-            <div class="mb-4">
-                <label class="block text-sm font-medium text-gray-700">Stock</label>
-                <input type="text" id="edit_item_stock" name="item_stock" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
-            </div>
-
-            <div class="mb-4">
-                <label class="block text-sm font-medium text-gray-700">Tags</label>
-                <input type="text" id="edit_item_tags" name="item_tags" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
-            </div>
-
-            <div class="mb-4">
-                <label class="block text-sm font-medium text-gray-700">New Image</label>
-                <input type="file" name="item_image" accept="image/*" class="mt-1 block w-full">
-            </div>
-
-            <div class="flex justify-end space-x-2">
-                <button type="submit" class="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600">
-                    Save Changes
-                </button>
-                <button type="button" onclick="closeEditModal()" class="px-4 py-2 bg-gray-500 text-white rounded-md hover:bg-gray-600">
-                    Cancel
-                </button>
-            </div>
-        </form>
-    </div>
-</div>
-
 <script>
+    /* Menu Icon Toogle */
+    document.addEventListener("DOMContentLoaded", function() {
+            const menuButton = document.getElementById("menuButton");
+            const sidebar = document.getElementById("sidebar");
+            const overlay = document.getElementById("overlay");
+
+            function toggleSidebar() {
+                sidebar.classList.toggle("-translate-x-full");
+                overlay.classList.toggle("hidden");
+            }
+
+            menuButton.addEventListener("click", toggleSidebar);
+            overlay.addEventListener("click", toggleSidebar);
+        });
+
+        // In your script
+        function toggleSidebar() {
+            sidebar.classList.toggle("-translate-x-full");
+            overlay.classList.toggle("hidden");
+            document.querySelector('main').classList.toggle('md:ml-64');
+        }
+
     function showModal(name, tags, stock, image, item_id) {
         // Populate modal with item data
         document.getElementById('modalItemName').textContent = name;

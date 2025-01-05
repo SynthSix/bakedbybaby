@@ -4,7 +4,7 @@
         <div class="relative w-full sm:w-2/5 overflow-hidden rounded-xl bg-gray-100">
             <img src="{{ asset('storage/' . $item->item_image) }}" 
                  alt="{{ $item->item_name }}" 
-                 class="h-48 sm:h-full w-full object-cover cursor-pointer"
+                 class="h-72 sm:h-full w-full object-cover cursor-pointer"
                  onclick="showModal('{{ $item->item_name }}', '{{ $item->item_tags }}', '{{ $item->item_stock }}', '{{ asset('storage/' . $item->item_image) }}', '{{ $item->item_id }}')">
         </div>
         <div class="p-4 flex-grow">
